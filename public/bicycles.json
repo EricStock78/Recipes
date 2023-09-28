@@ -1,0 +1,15 @@
+[ 
+    {
+        "name": "Red Bike", 
+        "img": "images/redbike.png", 
+        "speeds": 10
+    }, 
+    {
+        "name": "Blue Bike", 
+        "speeds": 21
+    },
+    {
+        "name": "Silver Bike", 
+        "speeds": 24
+    }
+]
