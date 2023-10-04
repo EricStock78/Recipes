@@ -11,7 +11,7 @@ function App() {
   const [bicycles, setBicycles] = useState(null);
 
   useEffect( () => {
-    fetch("./bicycles.json")
+    fetch("/api/bicycles")
     .then( response => response.json() )
     .then( setBicycles )
     .catch( e => console.log(e.message));
@@ -22,7 +22,7 @@ function App() {
   return (
     <div>
       <h1>Bicycle Website</h1>
-      <BicycleList bikes={bicycles}/>
+      <BicycleList bikes={bicycles} setBikes = {setBicycles}/>
     </div>
   
   )
