@@ -2,6 +2,13 @@ import logo from './logo.svg';
 import './App.css';
 import { useState, useEffect } from 'react';
 import { BicycleList } from './Bicycle';
+import { Login } from './Login';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
 
 function App() {
   
@@ -9,23 +16,19 @@ function App() {
 
 
   const [bicycles, setBicycles] = useState(null);
-
-  useEffect( () => {
-    fetch("/api/bicycles")
-    .then( response => response.json() )
-    .then( setBicycles )
-    .catch( e => console.log(e.message));
-  }, [])
-
-  if( bicycles == null ) return;
-
   return (
-    <div>
-      <h1>Bicycle Website</h1>
-      <BicycleList bikes={bicycles} setBikes = {setBicycles}/>
-    </div>
-  
-  )
+  <Router>
+  <div>
+    
+    {/* A <Switch> looks through its children <Route>s and
+        renders the first one that matches the current URL. */}
+    <Routes>
+      <Route path="/login" element={<Login />}/>
+      <Route path="/" element={<BicycleList bikes={bicycles} setBikes = {setBicycles} />}/>
+    </Routes>
+  </div>
+</Router>)
+
 }
 
 export default App;
