@@ -7,6 +7,26 @@ import 'dotenv/config';
 import https from 'https';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import { google} from 'googleapis';
+
+const oauthClient = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  'http://localhost:4000/api/google/oauth',
+)
+
+const getGoogleOauthURL = () => {
+   return oauthClient.generateAuthUrl( {
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+    ]
+   })
+}
+
+const googleOauthURL = getGoogleOauthURL();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +42,16 @@ app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
 })
 
+
+//TODO handle processing callback after user authenticates with google
+app.get('/api/google/oauth', async (req,res) => {
+
+})
+
+app.get('/api/google/oauthURL', (req, res) => {
+  res.status(200).json({"url": googleOauthURL});
+})
+
 app.get('/api/bicycles', async (req, res) => {
   const { authorization } = req.headers;
   console.log(authorization);
@@ -34,8 +64,10 @@ app.get('/api/bicycles', async (req, res) => {
     const token = authorization.split(' ')[1];
 
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-      if (err) return res.status(400).json({ message: 'Unable to verify token' });
-
+      if (err) 
+      {
+        return res.status(400).json({ message: 'Unable to verify token' });
+      }
       console.log(decoded);
 
       //const { id } = decoded
