@@ -1,13 +1,34 @@
 import { useState, useEffect } from 'react';
-import history from "history/browser";
 import { Navigate } from 'react-router-dom';
 export function BicycleList( {bikes, setBikes} ) {
 
     useEffect( () => {
-        fetch("/api/bicycles")
-        .then( response => response.json() )
-        .then( setBikes )
-        .catch( e => console.log(e.message));
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer "+localStorage.getItem('token'));
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+
+        fetch("/api/bicycles", requestOptions)
+        .then(
+            
+            response =>  {
+                console.log("Handling response");
+                return response.json();
+
+        })
+        .then( bikes => setBikes(bikes) )
+        .catch( e => {
+            console.log("Error!!!");
+            console.log(e.message);
+            localStorage.clear();
+            return (<Navigate to="/login" replace={true} />)    
+        });
+        
       }, [])
     
     // check local storage, and get the token if there is one
@@ -17,7 +38,7 @@ export function BicycleList( {bikes, setBikes} ) {
 
 
     // if there is no token we redirect to the login page
-    
+
     const token = localStorage.getItem('token');
 
 
