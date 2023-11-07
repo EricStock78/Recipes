@@ -17,7 +17,10 @@ export function BicycleList( {bikes, setBikes} ) {
         .then(
             
             response =>  {
-                console.log("Handling response");
+                if( !response.ok) {
+                    let code = response.status.toString();
+                    throw new Error( `${code} ${response.statusText}`);
+                }
                 return response.json();
 
         })
