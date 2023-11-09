@@ -42,11 +42,52 @@ app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
 })
 
+const getAccessAndBearerTokenUrl = ({access_token}) =>
+    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`;
 
 //TODO handle processing callback after user authenticates with google
 app.get('/api/google/oauth', async (req,res) => {
+    console.log("Hit callback route");
 
-})
+    //get code from url parameter
+    const { code } = req.query;
+    console.log(code);
+
+    const { tokens } = await oauthClient.getToken(code);
+    console.log(tokens);
+
+    const url = getAccessAndBearerTokenUrl( tokens );
+    console.log(url);
+
+    const myHeaders = new Headers();
+    const bearerToken = "Bearer "+tokens.id_token;
+    myHeaders.append("Authorization", bearerToken);
+
+   const requestOptions = {
+     method: 'GET',
+     headers: myHeaders,
+     redirect: 'follow'
+   };
+
+  fetch(url, requestOptions)
+    .then(response => response.json())
+    .then(result =>  {
+      console.log(result)
+      //generate JWT
+      jwt.sign({ "email": result.email, "name": result.name }, process.env.JWT_SECRET, { expiresIn: '2d' }, (err, token) => {
+        if (err) {
+            res.status(500).json(err);
+        }
+        //redirect the user to the login page with JWT attached
+        res.redirect(`http://localhost:4000?token=${token}`)
+      });
+    })
+    .catch(error => {
+      console.log('error', error);
+      res.status(500).json(err); 
+    });
+      
+  })
 
 app.get('/api/google/oauthURL', (req, res) => {
   res.status(200).json({"url": googleOauthURL});

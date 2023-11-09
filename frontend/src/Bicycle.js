@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 export function BicycleList( {bikes, setBikes} ) {
+
+    //check if there is a query parameter "token", and if there is store it in local storage
+    const [searchParams, setSearchParams] = useSearchParams();
+    const oauthToken = searchParams.get('token');
+    if( oauthToken ) {
+        localStorage.setItem('token', oauthToken);
+        searchParams.delete('token'); 
+        setSearchParams(searchParams);
+    }
 
     useEffect( () => {
         var myHeaders = new Headers();
