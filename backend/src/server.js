@@ -36,7 +36,6 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, '../build')));
 
-const port = 4000;
 
 app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
@@ -158,21 +157,22 @@ app.get('/api/login', async ( req, res ) => {
 })
 
 
+const port = 4000;
 
 if( process.env.USE_PROD) {
   const httpsServer = https.createServer({
     key: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/privkey.pem'),
     cert: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/fullchain.pem')}, app);
 
-  httpsServer.listen(443, ()=> {
-    console.log('HTTPS Server running on port 443')
+  httpsServer.listen(port, ()=> {
+    console.log(`Example app listening on port ${port} using https`)
   });
 
 }
 else {
   app.listen(port, () => {
 
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port} using http`)
   })
 }
 
