@@ -158,15 +158,22 @@ app.get('/api/login', async ( req, res ) => {
 })
 
 
-/*const httpsServer = https.createServer({
-	key: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/privkey.pem'),
-	cert: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/fullchain.pem')}, app);
 
-httpsServer.listen(443, ()=> {
-	console.log('HTTPS Server running on port 443')
-});*/
+if( process.env.USE_PROD) {
+  const httpsServer = https.createServer({
+    key: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/bicyclecollection.xyz/fullchain.pem')}, app);
 
-app.listen(port, () => {
+  httpsServer.listen(443, ()=> {
+    console.log('HTTPS Server running on port 443')
+  });
 
-  console.log(`Example app listening on port ${port}`)
-})
+}
+else {
+  app.listen(port, () => {
+
+    console.log(`Example app listening on port ${port}`)
+  })
+}
+
+
