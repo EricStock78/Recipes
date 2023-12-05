@@ -22,8 +22,30 @@ const getGoogleOauthURL = () => {
     scope: [
       'https://www.googleapis.com/auth/userinfo.email',
       'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/calendar'
     ]
    })
+} 
+
+async function listEvents(auth) {
+  const calendar = google.calendar({version: 'v3', auth});
+  const res = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: 'startTime',
+  });
+  const events = res.data.items;
+  if (!events || events.length === 0) {
+    console.log('No upcoming events found.');
+    return;
+  }
+  console.log('Upcoming 10 events:');
+  events.map((event, i) => {
+    const start = event.start.dateTime || event.start.date;
+    console.log(`${start} - ${event.summary}`);
+  });
 }
 
 const googleOauthURL = getGoogleOauthURL();
@@ -55,6 +77,11 @@ app.get('/api/google/oauth', async (req,res) => {
     const { tokens } = await oauthClient.getToken(code);
     console.log(tokens);
 
+    //I am setting the Oauth credentials and then I pass this to the method which makes the google api call to list the events
+    oauthClient.setCredentials(tokens);
+    listEvents(oauthClient);
+
+
     const url = getAccessAndBearerTokenUrl( tokens );
     console.log(url);
 
@@ -68,11 +95,11 @@ app.get('/api/google/oauth', async (req,res) => {
      redirect: 'follow'
    };
 
-  fetch(url, requestOptions)
+     fetch(url, requestOptions)
     .then(response => response.json())
     .then(result =>  {
       console.log(result)
-      //generate JWT
+            //generate JWT
       jwt.sign({ "email": result.email, "name": result.name }, process.env.JWT_SECRET, { expiresIn: '2d' }, (err, token) => {
         if (err) {
             res.status(500).json(err);
